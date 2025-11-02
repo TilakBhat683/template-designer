@@ -9,6 +9,7 @@ const DynamicTemplateEditor = () => {
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Parse HTML and extract placeholders
   const parseTemplate = (html) => {
     const regex = /\/\*(\w+)\*\//g;
     const found = [];
@@ -28,6 +29,7 @@ const DynamicTemplateEditor = () => {
     return found;
   };
 
+  // Handle file upload
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -41,6 +43,7 @@ const DynamicTemplateEditor = () => {
     }
   };
 
+  // Convert HTML content to display with clickable placeholders
   const renderEditableHTML = () => {
     if (!htmlContent) return null;
     
@@ -54,6 +57,7 @@ const DynamicTemplateEditor = () => {
     return processedHTML;
   };
 
+  // Handle placeholder click
   const handlePlaceholderClick = (e) => {
     const fieldName = e.target.getAttribute('data-field');
     if (fieldName) {
@@ -61,6 +65,7 @@ const DynamicTemplateEditor = () => {
     }
   };
 
+  // Save rule for a field
   const saveRule = (fieldName, ruleData) => {
     setRules(prev => ({
       ...prev,
@@ -68,6 +73,7 @@ const DynamicTemplateEditor = () => {
     }));
   };
 
+  // Generate final code
   const generateCode = () => {
     let code = '// Auto-generated template fill functions\n\n';
     
@@ -86,6 +92,7 @@ const DynamicTemplateEditor = () => {
     return code;
   };
 
+  // Generate preview with filled values
   const generatePreview = () => {
     let preview = htmlContent;
     
@@ -115,7 +122,9 @@ const DynamicTemplateEditor = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Main Editor Area */}
       <div className="flex-1 flex flex-col">
+        {/* Toolbar */}
         <div className="bg-white border-b px-4 py-3 flex items-center gap-3">
           <input
             ref={fileInputRef}
@@ -159,6 +168,7 @@ const DynamicTemplateEditor = () => {
           </div>
         </div>
 
+        {/* Template Display */}
         <div className="flex-1 overflow-auto p-6">
           {!htmlContent ? (
             <div className="flex items-center justify-center h-full">
@@ -169,15 +179,15 @@ const DynamicTemplateEditor = () => {
               </div>
             </div>
           ) : showPreview ? (
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full">
               <h3 className="text-lg font-semibold mb-4">Preview Output</h3>
               <div 
-                className="prose max-w-none"
+                className="w-full"
                 dangerouslySetInnerHTML={{ __html: generatePreview() }}
               />
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full">
               <style dangerouslySetInnerHTML={{
                 __html: `
                   .placeholder {
@@ -187,6 +197,7 @@ const DynamicTemplateEditor = () => {
                     cursor: pointer;
                     border: 2px solid #fbbf24;
                     transition: all 0.2s;
+                    display: inline-block;
                   }
                   .placeholder:hover {
                     background: #fcd34d;
@@ -199,10 +210,17 @@ const DynamicTemplateEditor = () => {
                   .placeholder.has-rule:hover {
                     background: #a7f3d0;
                   }
+                  /* Override uploaded HTML styles to fit better */
+                  body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    max-width: 100% !important;
+                  }
                 `
               }} />
               <div 
                 onClick={handlePlaceholderClick}
+                className="w-full"
                 dangerouslySetInnerHTML={{ __html: renderEditableHTML() }}
               />
             </div>
@@ -210,6 +228,7 @@ const DynamicTemplateEditor = () => {
         </div>
       </div>
 
+      {/* Rule Editor Panel */}
       {selectedField && (
         <div className="w-96 bg-white border-l shadow-lg flex flex-col">
           <div className="p-4 border-b bg-gray-50 flex items-center justify-between">
@@ -236,6 +255,7 @@ const DynamicTemplateEditor = () => {
   );
 };
 
+// Rule Editor Component
 const RuleEditor = ({ fieldName, currentRule, onSave }) => {
   const [ruleType, setRuleType] = useState(currentRule?.type || 'javascript');
   const [code, setCode] = useState(currentRule?.code || 'return "Your value here";');
@@ -275,6 +295,7 @@ const RuleEditor = ({ fieldName, currentRule, onSave }) => {
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-auto">
+      {/* Rule Type Selector */}
       <div className="mb-4">
         <label className="block text-sm font-medium mb-2">Rule Type</label>
         <div className="flex gap-2">
@@ -299,6 +320,7 @@ const RuleEditor = ({ fieldName, currentRule, onSave }) => {
         </div>
       </div>
 
+      {/* Rule Input */}
       <div className="flex-1 mb-4">
         {ruleType === 'javascript' && (
           <div>
@@ -338,6 +360,7 @@ const RuleEditor = ({ fieldName, currentRule, onSave }) => {
         )}
       </div>
 
+      {/* Test Result */}
       {testResult && (
         <div className="mb-4 p-3 bg-gray-50 rounded border">
           <div className="text-xs font-medium text-gray-600 mb-1">Test Result:</div>
@@ -345,6 +368,7 @@ const RuleEditor = ({ fieldName, currentRule, onSave }) => {
         </div>
       )}
 
+      {/* Actions */}
       <div className="flex gap-2">
         <button
           onClick={handleTest}
